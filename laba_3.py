@@ -5,75 +5,65 @@
 import random
 
 K_test = 3
-N_test = 10
-E_test = [
-    [9, 5, 1, 6, -3],
-    [1, 6, -5, -1, -4],
-    [-8, -2, -3, 7, 9],
-    [-7, 6, 0, -8, 4],
-    [-3, -9, -4, -1, -5]]
-
-B_test = [
-    [-8, -7, 1, 1, 10],
-    [-1, 10, 5, -10, -6],
-    [1, 8, 0, 9, 5],
-    [2, 1, -8, -5, -1],
-    [-3, -6, 9, 7, -6]]
-
-C_test = [
-    [5, 7, -1, -7, -6],
-    [2, 3, 10, -8, 4],
-    [-4, -7, -10, -4, -5],
-    [0, 9, -8, 9, -4],
-    [10, -8, -10, -1, 8]]
-
-D_test = [
-    [-7, 1, 7, 8, -3],
-    [-1, 6, -5, 2, 2],
-    [-4, -2, 1, -2, -2],
-    [2, -3, 0, -7, -1],
-    [-8, -10, 3, 0, -5]]
+N_test = 11
+A_test = [
+    [1, 2, 3, 4, 5, 4, -9, 8, -1, 5, 3],
+    [6, 7, 8, 9, 10, 2, -4, -8, -5, -1, 3],
+    [10, 9, 8, 7, 6, 9, -3, 3, 5, -1, -9],
+    [5, 4, 3, 2, 1, -5, 2, 7, 3, 8, 0],
+    [1, 2, 3, 4, 5, -4, 3, 3, -2, 4, -1],
+    [-1, 8, 6, 10, -3, 7, -8, -9, -9, -5, 2],
+    [-2, -6, -3, 1, 2, -3, 0, 5, 0, 0, 7],
+    [-7, 10, -4, -8, -9, -9, 0, 5, 0, -10, -4],
+    [3, 6, -9, 7, 2, -10, 4, 0, 2, -4, 0],
+    [10, 9, 9, 5, 8, -8, -8, 0, 10, -7, 1],
+    [6, -5, 0, 1, -5, -3, -5, 0, 7, -2, 0]]
 
 print('Использовать тестовые данные или случайные?')
-choice = input('Ваш выбор (1 - тестовые данные, 2 - случайные, q - выход): ')
+choice = input('Ваш выбор (1 - тестовые данные, 2 - случайные, q-выход): ')
 
 if choice == '1':
     K = K_test
     N = N_test
-    B, C, D, E = B_test, C_test, D_test, E_test
-    n = N // 2  # размерность матриц B, C, D, E (n x n)
+    A = A_test
 
 if choice == '2':
     K = int(input('Введите K: '))
     N = int(input('Введите N: '))
 
-    if (N % 2 != 0) or ((N / 2) % 2 == 0) or ((N / 2) < 3):
-        print('Ошибка в исходных данных. Число N должно быть четным и таким, чтобы число N/2 было нечетным и больше или равно 3')
+    if (N < 6):
+        print('Ошибка в исходных данных. Длина сторон матрицы А (N,N) должна быть больше 5!')
         exit()
 
-    B, C, D, E = [], [], [], []
-    n = N // 2  # размерность матриц B, C, D, E (n x n)
-    for row in range(n):
-        row_b, row_c, row_d, row_e = [], [], [], []
-        for col in range(n):
-            row_b.append(random.randint(-10, 10))
-            row_c.append(random.randint(-10, 10))
-            row_d.append(random.randint(-10, 10))
-            row_e.append(random.randint(-10, 10))
-        B.append(row_b)
-        C.append(row_c)
-        D.append(row_d)
-        E.append(row_e)
+    A = []
+    for row in range(N):
+        cur_row = []
+        for col in range(N):
+            cur_row.append(random.randint(-10, 10))
+        A.append(cur_row)
+
+B, C, D, E = [], [], [], []
+n = N // 2  # размерность матриц B, C, D, E (n x n)
+
+if N % 2 == 0:
+    step = N // 2
+else:
+    step = N // 2 + 1
+
+for row in range(n):
+    row_b, row_c, row_d, row_e = [], [], [], []
+    for col in range(n):
+        row_e.append(A[row][col])
+        row_b.append(A[row][col + step])
+        row_d.append(A[row + step][col])
+        row_c.append(A[row + step][col + step])
+    B.append(row_b)
+    C.append(row_c)
+    D.append(row_d)
+    E.append(row_e)
 
 if choice == 'q':
     exit()
-
-A = []
-for row in range(n):
-    A.append(E[row] + B[row])
-
-for row in range(n):
-    A.append(D[row] + C[row])
 
 # печатаем матрицы E, B, C, D, A
 print('Матрица E:')
@@ -99,13 +89,19 @@ for row in range(N):
 # считаем количество нулевых элементов в нечетных столбцах в области 4 матрицы С
 count_zero_c_4 = 0
 for row in range(1, n - 1):
-    if row <= n // 2:
-        end_col = row
+    if n % 2 == 1:
+        if row <= n // 2:
+            end_col = row
+        else:
+            end_col = n - row - 1
     else:
-        end_col = n - row - 1
+        if row < n // 2:
+            end_col = row
+        else:
+            end_col = n - row - 1
     for col in range(0, end_col):
         # print(C[row][col])
-        if (col + 1) % 2 == 1:  # считаем, что нумерация столбцов начинается с 1
+        if col % 2 == 1:
             if C[row][col] == 0:
                 count_zero_c_4 += 1  # увеличиваем счетчик
 print(f'Количество нулевых элементов в матрице С в области 4 в нечетных столбцах: {count_zero_c_4}')
@@ -113,24 +109,42 @@ print(f'Количество нулевых элементов в матрице
 # считаем количество нулевых элементов в нечетных столбцах в области 1 матрицы С
 count_zero_c_1 = 0
 for col in range(1, n - 1):
-    if col <= n // 2:
-        end_row = col
+    if n % 2 == 1:
+        if col <= n // 2:
+            end_row = col
+        else:
+            end_row = n - col - 1
     else:
-        end_row = n - col - 1
+        if col < n // 2:
+            end_row = col
+        else:
+            end_row = n - col - 1
     for row in range(0, end_row):
         # print(C[row][col])
-        if (col + 1) % 2 == 0:  # считаем, что нумерация столбцов начинается с 1
+        if col % 2 == 0:
             if C[row][col] == 0:
                 count_zero_c_1 += 1  # увеличиваем счетчик
 print(f'Количество нулевых элементов в матрице С в области 1 в четных столбцах: {count_zero_c_1}')
 
 F = []
+for row in range(N):
+    cur_row = []
+    for col in range(N):
+        cur_row.append(A[row][col])
+    F.append(cur_row)
+
 if count_zero_c_4 > count_zero_c_1:  # если в матрице С в области 4 больше нулевых элементов, чем в области 1
-    for col in range(1, n - 1):  # симметрично меняем области 2 и 3 относительно диагонали
-        if col <= n // 2:
-            end_row = n - col - 1
+    for col in range(1, n - 1):  # симметрично меняем области 2 и 3 матрицы B относительно диагонали
+        if n % 2 == 1:
+            if col <= n // 2:
+                end_row = n - col - 1
+            else:
+                end_row = col
         else:
-            end_row = col
+            if col < n // 2:
+                end_row = n - col - 1
+            else:
+                end_row = col
         for row in range(n - 1, end_row, -1):
             temp = B[row][col]
             B[row][col] = B[col][row]
@@ -139,16 +153,29 @@ if count_zero_c_4 > count_zero_c_1:  # если в матрице С в обла
     for row in range(n):
         print(B[row])
     # формируем матрицу F
+    if N % 2 == 0:
+        step = N // 2
+    else:
+        step = N // 2 + 1
     for row in range(n):
-        F.append(E[row] + B[row])
-    for row in range(n):
-        F.append(D[row] + C[row])
+        for col in range(n):
+            F[row][col] = E[row][col]
+            F[row][col + step] = B[row][col]
+            F[row + step][col] = D[row][col]
+            F[row + step][col + step] = C[row][col]
+
 else:  # если условие не выполнено
     # формируем матрицу F, меняем E и C несимметрично местами
+    if N % 2 == 0:
+        step = N // 2
+    else:
+        step = N // 2 + 1
     for row in range(n):
-        F.append(C[row] + B[row])
-    for row in range(n):
-        F.append(D[row] + E[row])
+        for col in range(n):
+            F[row][col] = C[row][col]
+            F[row][col + step] = B[row][col]
+            F[row + step][col] = D[row][col]
+            F[row + step][col + step] = E[row][col]
 
 print('Матрица F:')
 for row in range(N):
@@ -168,9 +195,9 @@ print('Матрица F*A: ')
 for row in range(N):
     print(F_mult_A[row])
 
-A_transpose = []
+A_transpose = [] # транспонированная матрица A
 for row in range(N):
-    A_transpose_row = []  # транспонированная матрица A
+    A_transpose_row = []
     for col in range(N):
         A_transpose_row.append(A[col][row])
     A_transpose.append(A_transpose_row)
@@ -184,11 +211,13 @@ for row in range(N):
     cur_row = []
     for col in range(N):
         cur_row.append(0)
-    A_transpose_mult_K.append(cur_row)  # формируем пустую матрицу, чтобы была возможность доступа к элементам матрицы по индексам
+    A_transpose_mult_K.append(
+        cur_row)  # формируем пустую матрицу, чтобы была возможность доступа к элементам матрицы по индексам
 
 for row in range(N):
     for col in range(N):
-        A_transpose_mult_K[row][col] = K * A_transpose[row][col]  # транспонированная матрица А умноженная на константу К
+        A_transpose_mult_K[row][col] = K * A_transpose[row][
+            col]  # транспонированная матрица А умноженная на константу К
 
 print('Транспонированная матрица A умноженная на K: ')
 for row in range(N):
